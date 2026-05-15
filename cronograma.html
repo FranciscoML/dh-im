@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronograma de Proyecto · Deperu Hub · Arteria Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ──────────────────────────────────────────────
+       TOKENS & RESET
+    ────────────────────────────────────────────── */
+    :root {
+      --bg:        #080810;
+      --bg2:       #0e0e1a;
+      --bg3:       #13131f;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --red:       #e8192c;
+      --red-dim:   rgba(232,25,44,0.12);
+      --red-glow:  rgba(232,25,44,0.25);
+      --white:     #f4f3ef;
+      --muted:     rgba(244,243,239,0.45);
+      --muted2:    rgba(244,243,239,0.22);
+      --gold:      #d4a853;
+      --cyan:      #2dd4bf;
+      --phase1:    #e8192c;
+      --phase2:    #d4a853;
+      --phase3:    #6366f1;
+      --phase4:    #2dd4bf;
+      --phase5:    #4ade80;
+      --r:         6px;
+      --r2:        12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ──────────────────────────────────────────────
+       NOISE + GRID OVERLAY
+    ────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(232,25,44,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,25,44,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: .35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ──────────────────────────────────────────────
+       LAYOUT SHELL
+    ────────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    /* ──────────────────────────────────────────────
+       ANIMATIONS
+    ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(0.6); }
+    }
+    @keyframes bar-fill {
+      from { width: 0; }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeUp .7s ease forwards;
+    }
+
+    /* ──────────────────────────────────────────────
+       TOP NAV BAR
+    ────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(18px);
+      background: rgba(8,8,16,0.85);
+      z-index: 100;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--red);
+      clip-path: polygon(0 0, 100% 0, 100% 65%, 65% 100%, 0 100%);
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .topbar-ref {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .topbar-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--red);
+      background: var(--red-dim);
+      border: 1px solid rgba(232,25,44,0.3);
+      padding: 5px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse-dot 1.6s ease-in-out infinite;
+    }
+
+    /* ──────────────────────────────────────────────
+       SECTION SPACING
+    ────────────────────────────────────────────── */
+    .section {
+      padding: 72px 0 0;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span { color: var(--red); }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 48px 0 0;
+    }
+
+    /* ──────────────────────────────────────────────
+       01 · HERO
+    ────────────────────────────────────────────── */
+    .hero {
+      padding: 80px 0 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -120px;
+      right: -200px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(232,25,44,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      animation: fadeUp .5s ease .1s both;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: block;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      animation: fadeUp .6s ease .2s both;
+    }
+
+    .hero-title .project-name {
+      display: block;
+      color: var(--white);
+    }
+
+    .hero-title .service-name {
+      display: block;
+      color: var(--red);
+      -webkit-text-stroke: 1px var(--red);
+    }
+
+    .hero-sub {
+      margin-top: 28px;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      max-width: 600px;
+      line-height: 1.7;
+      animation: fadeUp .6s ease .3s both;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 36px;
+      animation: fadeUp .6s ease .4s both;
+    }
+
+    .pill {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.06em;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+    }
+
+    .pill.red   { border-color: rgba(232,25,44,0.4); color: var(--red); background: var(--red-dim); }
+    .pill.gold  { border-color: rgba(212,168,83,0.4); color: var(--gold); background: rgba(212,168,83,0.08); }
+    .pill.cyan  { border-color: rgba(45,212,191,0.35); color: var(--cyan); background: rgba(45,212,191,0.07); }
+
+    /* ──────────────────────────────────────────────
+       02 · KPI CARDS
+    ────────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      overflow: hidden;
+      margin-top: 52px;
+    }
+
+    @media (max-width: 700px) {
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    }
+
+    .kpi-card {
+      background: var(--bg2);
+      padding: 28px 24px;
+      transition: background .25s;
+    }
+
+    .kpi-card:hover { background: var(--bg3); }
+
+    .kpi-icon {
+      font-size: 22px;
+      margin-bottom: 14px;
+      opacity: 0.7;
+    }
+
+    .kpi-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 32px;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--white);
+    }
+
+    .kpi-value span {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    .kpi-label {
+      margin-top: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted2);
+    }
+
+    .kpi-accent { color: var(--red); }
+
+    /* ──────────────────────────────────────────────
+       03 · TEAM
+    ────────────────────────────────────────────── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) { .team-grid { grid-template-columns: 1fr; } }
+
+    .team-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: border-color .25s, transform .25s;
+    }
+
+    .team-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--bg3);
+      border: 2px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--red);
+      flex-shrink: 0;
+    }
+
+    .team-info-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+
+    .team-info-role {
+      margin-top: 3px;
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .team-tag {
+      margin-top: 10px;
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--red);
+      background: var(--red-dim);
+      border: 1px solid rgba(232,25,44,0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* ──────────────────────────────────────────────
+       04 · GANTT TIMELINE
+    ────────────────────────────────────────────── */
+    .gantt-wrap {
+      margin-top: 44px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      overflow: hidden;
+    }
+
+    /* Day header */
+    .gantt-header {
+      display: grid;
+      grid-template-columns: 220px repeat(10, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gantt-header-label {
+      padding: 14px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      border-right: 1px solid var(--border);
+    }
+
+    .gantt-day {
+      padding: 14px 0;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--muted2);
+      border-right: 1px solid var(--border);
+    }
+
+    .gantt-day:last-child { border-right: none; }
+
+    /* Phase rows */
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 220px repeat(10, 1fr);
+      border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+
+    .gantt-row:last-child { border-bottom: none; }
+    .gantt-row:hover { background: rgba(255,255,255,0.02); }
+
+    .gantt-phase-info {
+      padding: 18px 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .phase-number {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 4px;
+    }
+
+    .phase-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+
+    .gantt-cells {
+      display: contents;
+    }
+
+    .gantt-cell {
+      border-right: 1px solid var(--border);
+      padding: 18px 4px;
+      position: relative;
+    }
+
+    .gantt-cell:last-child { border-right: none; }
+
+    .gantt-bar {
+      height: 22px;
+      border-radius: 3px;
+      width: 0;
+      animation: bar-fill .9s cubic-bezier(.22,1,.36,1) forwards;
+      animation-delay: var(--delay, .3s);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gantt-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s linear infinite;
+    }
+
+    .gantt-bar.p1 { background: var(--phase1); width: 100%; }
+    .gantt-bar.p2 { background: var(--phase2); width: 100%; }
+    .gantt-bar.p3 { background: var(--phase3); width: 100%; }
+    .gantt-bar.p4 { background: var(--phase4); width: 100%; }
+    .gantt-bar.p5 { background: var(--phase5); width: 100%; }
+
+    /* Mobile gantt: stacked */
+    @media (max-width: 768px) {
+      .gantt-header,
+      .gantt-row { grid-template-columns: 1fr; }
+      .gantt-header { display: none; }
+      .gantt-phase-info { border-right: none; border-bottom: 1px solid var(--border); }
+      .gantt-cell { display: none; }
+      .gantt-cell.show-mobile { display: block; border-right: none; }
+    }
+
+    /* Phase legend */
+    .phase-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ──────────────────────────────────────────────
+       05 · FASES DETALLE CARDS
+    ────────────────────────────────────────────── */
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 44px;
+    }
+
+    @media (max-width: 900px) { .phases-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .phases-grid { grid-template-columns: 1fr; } }
+
+    .phase-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 22px 18px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .25s;
+      cursor: default;
+    }
+
+    .phase-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .phase-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--phase-color);
+    }
+
+    .phase-card-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 10px;
+    }
+
+    .phase-card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1.3;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .phase-card-days {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--phase-color);
+      background: color-mix(in srgb, var(--phase-color) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--phase-color) 30%, transparent);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+
+    .phase-tasks {
+      list-style: none;
+    }
+
+    .phase-tasks li {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+    }
+
+    .phase-tasks li:last-child { border-bottom: none; }
+
+    .phase-tasks li::before {
+      content: '—';
+      color: var(--phase-color);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      opacity: 0.7;
+    }
+
+    /* ──────────────────────────────────────────────
+       06 · ENTREGABLES CHECKLIST
+    ────────────────────────────────────────────── */
+    .deliverables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 44px;
+    }
+
+    @media (max-width: 700px) { .deliverables-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 440px) { .deliverables-grid { grid-template-columns: 1fr; } }
+
+    .deliverable-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color .25s, transform .25s;
+    }
+
+    .deliverable-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .deliverable-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .deliverable-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .deliverable-detail {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .deliverable-status {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .status-pending  { color: var(--gold); }
+    .status-progress { color: var(--cyan); }
+    .status-done     { color: var(--phase5); }
+
+    /* ──────────────────────────────────────────────
+       07 · HITOS / MILESTONES
+    ────────────────────────────────────────────── */
+    .milestones {
+      margin-top: 44px;
+      position: relative;
+    }
+
+    .milestones-line {
+      position: absolute;
+      left: 19px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--red), var(--gold), var(--phase5));
+      opacity: 0.4;
+    }
+
+    .milestone-item {
+      display: flex;
+      gap: 24px;
+      padding: 0 0 32px 0;
+      position: relative;
+    }
+
+    .milestone-item:last-child { padding-bottom: 0; }
+
+    .milestone-dot-wrap {
+      flex-shrink: 0;
+      width: 40px;
+      display: flex;
+      justify-content: center;
+      padding-top: 4px;
+    }
+
+    .milestone-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--dot-color, var(--red));
+      background: var(--bg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .milestone-dot::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: var(--dot-color, var(--red));
+    }
+
+    .milestone-body {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 20px 24px;
+      flex: 1;
+      transition: border-color .25s;
+    }
+
+    .milestone-body:hover { border-color: var(--border2); }
+
+    .milestone-day {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dot-color, var(--red));
+      margin-bottom: 6px;
+    }
+
+    .milestone-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .milestone-desc {
+      margin-top: 6px;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .milestone-badge {
+      margin-top: 10px;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .checkpoint-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 4px;
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(232,25,44,0.3);
+    }
+
+    /* ──────────────────────────────────────────────
+       08 · CONDICIONES
+    ────────────────────────────────────────────── */
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      overflow: hidden;
+      margin-top: 44px;
+    }
+
+    @media (max-width: 700px) { .conditions-grid { grid-template-columns: 1fr; } }
+
+    .condition-card {
+      background: var(--bg2);
+      padding: 28px 24px;
+      transition: background .2s;
+    }
+
+    .condition-card:hover { background: var(--bg3); }
+
+    .condition-icon {
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    .condition-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .condition-text {
+      font-size: .9rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .condition-highlight {
+      color: var(--red);
+      font-weight: 500;
+    }
+
+    /* ──────────────────────────────────────────────
+       09 · INVESTMENT BLOCK
+    ────────────────────────────────────────────── */
+    .investment-block {
+      margin-top: 64px;
+      background: linear-gradient(135deg, var(--bg2) 0%, #0d0d1c 100%);
+      border: 1px solid var(--border2);
+      border-radius: var(--r2);
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .investment-block::before {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      right: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--red-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .investment-block { grid-template-columns: 1fr; padding: 32px; }
+    }
+
+    .investment-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 8px;
+    }
+
+    .investment-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .investment-desc {
+      margin-top: 10px;
+      font-size: .9rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 440px;
+    }
+
+    .investment-amount {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .amount-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      letter-spacing: 0.1em;
+      color: var(--muted2);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .amount-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 52px;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .amount-value small {
+      font-size: 22px;
+      opacity: 0.5;
+    }
+
+    .amount-igv {
+      margin-top: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      color: var(--muted2);
+    }
+
+    .amount-total-line {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .amount-total-line strong {
+      color: var(--red);
+      font-size: .9rem;
+    }
+
+    /* ──────────────────────────────────────────────
+       FOOTER
+    ────────────────────────────────────────────── */
+    .footer {
+      margin-top: 80px;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .footer { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-brand-mark {
+      width: 24px;
+      height: 24px;
+      background: var(--red);
+      clip-path: polygon(0 0, 100% 0, 100% 65%, 65% 100%, 0 100%);
+      flex-shrink: 0;
+    }
+
+    .footer-brand-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .footer-center {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted2);
+    }
+
+    .footer-right {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted2);
+      line-height: 1.8;
+    }
+
+    .confidential-strip {
+      margin-top: 28px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      text-align: center;
+      grid-column: 1 / -1;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── TOP NAV ── -->
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-mark"></div>
+      <span class="brand-name">Arteria Studio</span>
+    </div>
+    <span class="topbar-ref">REF · AS-DH-2026-02</span>
+    <div class="topbar-badge">
+      <div class="status-dot"></div>
+      Pendiente aprobación
+    </div>
+  </nav>
+
+  <!-- ── PAGE ── -->
+  <div class="page">
+    <div class="hero-glow"></div>
+
+    <!-- ── 01 HERO ── -->
+    <header class="hero">
+
+      <div class="hero-eyebrow">Cronograma Oficial de Proyecto · Mayo 2026</div>
+
+      <h1 class="hero-title">
+        <span class="project-name">Deperu Hub</span>
+        <span class="service-name">Identidad<br>&amp; Marca</span>
+      </h1>
+
+      <p class="hero-sub">
+        Plan de trabajo detallado para el desarrollo del sistema visual completo de Deperu Hub — desde el concepto hasta la entrega de archivos master.
+      </p>
+
+      <div class="hero-pills">
+        <span class="pill red">10 días hábiles</span>
+        <span class="pill gold">2 especialistas</span>
+        <span class="pill cyan">Entrega: 27 Mayo 2026</span>
+        <span class="pill">Módulo Branding</span>
+        <span class="pill">3 rondas de revisión</span>
+      </div>
+    </header>
+
+    <!-- ── 02 KPI CARDS ── -->
+    <div class="kpi-grid fade-in" style="animation-delay:.15s">
+      <div class="kpi-card">
+        <div class="kpi-icon">⏱</div>
+        <div class="kpi-value">10 <span>días</span></div>
+        <div class="kpi-label">Duración del proyecto</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-value kpi-accent">02 <span>esp.</span></div>
+        <div class="kpi-label">Equipo dedicado</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-value">06 <span>items</span></div>
+        <div class="kpi-label">Entregables finales</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🔄</div>
+        <div class="kpi-value">03 <span>rondas</span></div>
+        <div class="kpi-label">Revisiones incluidas</div>
+      </div>
+    </div>
+
+    <!-- ── 03 EQUIPO ── -->
+    <section class="section fade-in" style="animation-delay:.2s">
+      <div class="section-label">03 · Equipo</div>
+      <h2 class="section-title">Especialistas <span>asignados</span></h2>
+
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="avatar">IS</div>
+          <div>
+            <div class="team-info-name">Isco</div>
+            <div class="team-info-role">CREATIVE DIRECTOR · BRAND STRATEGY</div>
+            <div class="team-tag">Lead del Proyecto</div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="avatar">CD</div>
+          <div>
+            <div class="team-info-name">Colaborador</div>
+            <div class="team-info-role">SENIOR BRAND DESIGNER</div>
+            <div class="team-tag">Producción Visual</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 04 GANTT ── -->
+    <section class="section fade-in" style="animation-delay:.25s">
+      <div class="section-label">04 · Cronograma</div>
+      <h2 class="section-title">Plan de <span>trabajo</span></h2>
+
+      <div class="gantt-wrap" style="margin-top:44px; overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; min-width:700px;">
+          <thead>
+            <tr>
+              <th style="width:200px; padding:14px 20px; text-align:left; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">Fase</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D1</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D2</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D3</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D4</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D5</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D6</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D7</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D8</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border); border-right:1px solid var(--border);">D9</th>
+              <th style="padding:14px 8px; text-align:center; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted2); border-bottom:1px solid var(--border);">D10</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Fase 1 -->
+            <tr>
+              <td style="padding:16px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div style="font-family:'DM Mono',monospace; font-size: .8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:3px;">Fase 01</div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size: 1rem;">Discovery &amp; Estrategia</div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p1" style="--delay:.4s"></div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p1" style="--delay:.45s"></div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-bottom:1px solid var(--border);"></td>
+            </tr>
+            <!-- Fase 2 -->
+            <tr>
+              <td style="padding:16px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div style="font-family:'DM Mono',monospace; font-size: .8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:3px;">Fase 02</div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size: 1rem;">Conceptualización Visual</div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p2" style="--delay:.5s"></div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p2" style="--delay:.55s"></div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-bottom:1px solid var(--border);"></td>
+            </tr>
+            <!-- Fase 3 -->
+            <tr>
+              <td style="padding:16px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div style="font-family:'DM Mono',monospace; font-size: .8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:3px;">Fase 03</div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size: 1rem;">Desarrollo de Identidad</div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p3" style="--delay:.6s"></div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p3" style="--delay:.65s"></div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p3" style="--delay:.7s"></div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-bottom:1px solid var(--border);"></td>
+            </tr>
+            <!-- Fase 4 -->
+            <tr>
+              <td style="padding:16px 20px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div style="font-family:'DM Mono',monospace; font-size: .8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:3px;">Fase 04</div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size: 1rem;">Manual de Marca</div>
+              </td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border); border-bottom:1px solid var(--border);"></td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p4" style="--delay:.75s"></div>
+              </td>
+              <td style="padding:16px 6px; border-right:1px solid var(--border); border-bottom:1px solid var(--border);">
+                <div class="gantt-bar p4" style="--delay:.8s"></div>
+              </td>
+              <td style="border-bottom:1px solid var(--border);"></td>
+            </tr>
+            <!-- Fase 5 -->
+            <tr>
+              <td style="padding:16px 20px; border-right:1px solid var(--border);">
+                <div style="font-family:'DM Mono',monospace; font-size: .8rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:3px;">Fase 05</div>
+                <div style="font-family:'Syne',sans-serif; font-weight:700; font-size: 1rem;">Entrega &amp; Cierre</div>
+              </td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="border-right:1px solid var(--border);"></td>
+              <td style="padding:16px 6px;">
+                <div class="gantt-bar p5" style="--delay:.85s"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phase legend -->
+      <div class="phase-legend" style="margin-top:20px; padding:0 4px;">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--phase1)"></div>Discovery</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--phase2)"></div>Concepto</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--phase3)"></div>Desarrollo</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--phase4)"></div>Manual</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--phase5)"></div>Entrega</div>
+      </div>
+    </section>
+
+    <!-- ── 05 FASES DETALLE ── -->
+    <section class="section fade-in" style="animation-delay:.3s">
+      <div class="section-label">05 · Fases del Proyecto</div>
+      <h2 class="section-title">Detalle de <span>etapas</span></h2>
+
+      <div class="phases-grid">
+        <!-- F1 -->
+        <div class="phase-card" style="--phase-color:var(--phase1)">
+          <div class="phase-card-num">Fase 01</div>
+          <div class="phase-card-title">Discovery &amp; Estrategia</div>
+          <div class="phase-card-days">Días 1 – 2</div>
+          <ul class="phase-tasks">
+            <li>Briefing profundo con el cliente</li>
+            <li>Benchmark competencia</li>
+            <li>Definición de territorio de marca</li>
+            <li>Mood board interno de referencias</li>
+          </ul>
+        </div>
+        <!-- F2 -->
+        <div class="phase-card" style="--phase-color:var(--phase2)">
+          <div class="phase-card-num">Fase 02</div>
+          <div class="phase-card-title">Conceptualización Visual</div>
+          <div class="phase-card-days">Días 3 – 4</div>
+          <ul class="phase-tasks">
+            <li>3 propuestas tipográficas</li>
+            <li>Bocetos y símbolo/logotipo</li>
+            <li>Paleta cromática (2 variantes)</li>
+            <li>Checkpoint #1 con cliente</li>
+          </ul>
+        </div>
+        <!-- F3 -->
+        <div class="phase-card" style="--phase-color:var(--phase3)">
+          <div class="phase-card-num">Fase 03</div>
+          <div class="phase-card-title">Desarrollo de Identidad</div>
+          <div class="phase-card-days">Días 5 – 7</div>
+          <ul class="phase-tasks">
+            <li>Logotipo + variantes</li>
+            <li>Sistema de color definitivo</li>
+            <li>Sistema tipográfico completo</li>
+            <li>Iconografía base</li>
+            <li>Mockups de aplicación</li>
+          </ul>
+        </div>
+        <!-- F4 -->
+        <div class="phase-card" style="--phase-color:var(--phase4)">
+          <div class="phase-card-num">Fase 04</div>
+          <div class="phase-card-title">Manual de Marca</div>
+          <div class="phase-card-days">Días 8 – 9</div>
+          <ul class="phase-tasks">
+            <li>Diseño y maquetación del brandbook</li>
+            <li>Guía uso digital e impreso</li>
+            <li>Usos correctos e incorrectos</li>
+            <li>Control de calidad interno</li>
+          </ul>
+        </div>
+        <!-- F5 -->
+        <div class="phase-card" style="--phase-color:var(--phase5)">
+          <div class="phase-card-num">Fase 05</div>
+          <div class="phase-card-title">Entrega &amp; Cierre</div>
+          <div class="phase-card-days">Día 10</div>
+          <ul class="phase-tasks">
+            <li>Presentación formal al cliente</li>
+            <li>Ajustes finales (si aplica)</li>
+            <li>Handoff archivos master</li>
+            <li>Firma de conformidad</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 06 ENTREGABLES ── -->
+    <section class="section fade-in" style="animation-delay:.35s">
+      <div class="section-label">06 · Entregables</div>
+      <h2 class="section-title">Qué <span>recibirás</span></h2>
+
+      <div class="deliverables-grid">
+        <div class="deliverable-card">
+          <div class="deliverable-icon">🔴</div>
+          <div>
+            <div class="deliverable-name">Logotipo Principal + Variantes</div>
+            <div class="deliverable-detail">Versión horizontal, vertical, isotipo y versión monocromática para todos los soportes.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+        <div class="deliverable-card">
+          <div class="deliverable-icon">🎨</div>
+          <div>
+            <div class="deliverable-name">Paleta Cromática Oficial</div>
+            <div class="deliverable-detail">Colores primarios, secundarios y neutros con códigos HEX, RGB y CMYK.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+        <div class="deliverable-card">
+          <div class="deliverable-icon">Aa</div>
+          <div>
+            <div class="deliverable-name">Sistema Tipográfico</div>
+            <div class="deliverable-detail">Fuente para titulares, cuerpo de texto y complementaria. Guía de jerarquía.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+        <div class="deliverable-card">
+          <div class="deliverable-icon">✦</div>
+          <div>
+            <div class="deliverable-name">Iconografía Base</div>
+            <div class="deliverable-detail">Set inicial de íconos coherentes con el sistema visual de la marca.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+        <div class="deliverable-card">
+          <div class="deliverable-icon">📖</div>
+          <div>
+            <div class="deliverable-name">Manual de Marca (PDF)</div>
+            <div class="deliverable-detail">Brandbook completo con guía de uso digital e impreso. Aplicaciones y restricciones.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+        <div class="deliverable-card">
+          <div class="deliverable-icon">📁</div>
+          <div>
+            <div class="deliverable-name">Archivos Master Fuente</div>
+            <div class="deliverable-detail">Entregable completo en formato .AI + .PDF + exportaciones .PNG en alta resolución.</div>
+            <div class="deliverable-status status-pending">◎ Pendiente</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 07 HITOS ── -->
+    <section class="section fade-in" style="animation-delay:.4s">
+      <div class="section-label">07 · Hitos &amp; Aprobaciones</div>
+      <h2 class="section-title">Checkpoints <span>clave</span></h2>
+
+      <div class="milestones" style="margin-top:44px; padding-left:0;">
+        <div class="milestones-line"></div>
+
+        <div class="milestone-item">
+          <div class="milestone-dot-wrap">
+            <div class="milestone-dot" style="--dot-color:var(--phase2)"></div>
+          </div>
+          <div class="milestone-body">
+            <div class="milestone-day" style="color:var(--phase2)">Día 4 · Checkpoint #1</div>
+            <div class="milestone-title">Aprobación de Concepto Visual</div>
+            <div class="milestone-desc">Presentación de dirección tipográfica, paleta cromática y primeras exploraciones de logotipo. El cliente aprueba la dirección antes de pasar al desarrollo completo. <strong style="color:var(--white)">Responsable: Cliente.</strong></div>
+            <div class="milestone-badge"><span class="checkpoint-tag">⚑ Aprobación requerida</span></div>
+          </div>
+        </div>
+
+        <div class="milestone-item">
+          <div class="milestone-dot-wrap">
+            <div class="milestone-dot" style="--dot-color:var(--phase4)"></div>
+          </div>
+          <div class="milestone-body">
+            <div class="milestone-day" style="color:var(--phase4)">Día 9 · Checkpoint #2</div>
+            <div class="milestone-title">Aprobación de Manual de Marca (Draft)</div>
+            <div class="milestone-desc">Revisión del brandbook completo antes de la entrega definitiva. Incorporación de ajustes menores. <strong style="color:var(--white)">Responsable: Cliente.</strong></div>
+            <div class="milestone-badge"><span class="checkpoint-tag">⚑ Aprobación requerida</span></div>
+          </div>
+        </div>
+
+        <div class="milestone-item">
+          <div class="milestone-dot-wrap">
+            <div class="milestone-dot" style="--dot-color:var(--phase5)"></div>
+          </div>
+          <div class="milestone-body">
+            <div class="milestone-day" style="color:var(--phase5)">Día 10 · Cierre</div>
+            <div class="milestone-title">Conformidad y Entrega Final</div>
+            <div class="milestone-desc">Presentación formal de todos los entregables. Handoff de archivos master. El cliente firma la conformidad y se transfiere la propiedad intelectual. <strong style="color:var(--white)">Responsable: Arteria Studio.</strong></div>
+            <div class="milestone-badge"><span class="checkpoint-tag" style="background:rgba(74,222,128,.1); color:var(--phase5); border-color:rgba(74,222,128,.3)">✓ Entrega final</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 08 CONDICIONES ── -->
+    <section class="section fade-in" style="animation-delay:.45s">
+      <div class="section-label">08 · Condiciones del Proyecto</div>
+      <h2 class="section-title">Términos &amp; <span>compromisos</span></h2>
+
+      <div class="conditions-grid">
+        <div class="condition-card">
+          <div class="condition-icon">🔄</div>
+          <div class="condition-title">Revisiones Incluidas</div>
+          <div class="condition-text">Cada entregable incluye hasta <span class="condition-highlight">3 rondas de cambios</span> sin costo adicional. Revisiones adicionales se cotizan por separado.</div>
+        </div>
+        <div class="condition-card">
+          <div class="condition-icon">⏳</div>
+          <div class="condition-title">Responsabilidades del Cliente</div>
+          <div class="condition-text">El cliente debe proveer accesos, información y aprobaciones en un plazo máximo de <span class="condition-highlight">5 días hábiles</span>. Demoras pueden extender el cronograma.</div>
+        </div>
+        <div class="condition-card">
+          <div class="condition-icon">©</div>
+          <div class="condition-title">Propiedad Intelectual</div>
+          <div class="condition-text">La propiedad de los entregables se transfiere al cliente una vez efectuado el <span class="condition-highlight">pago total</span> del proyecto.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 09 INVERSIÓN ── -->
+    <div class="investment-block fade-in" style="animation-delay:.5s">
+      <div>
+        <div class="investment-label">Inversión del Proyecto</div>
+        <div class="investment-title">Identidad &amp; Marca · Deperu Hub</div>
+        <div class="investment-desc">Módulo completo: Manual de Marca y Sistema Visual. Logotipo, paleta, tipografía, iconografía y guía de uso digital/impreso. Entregable en AI + PDF + archivos master.</div>
+      </div>
+      <div class="investment-amount">
+        <div class="amount-sub">Subtotal</div>
+        <div class="amount-value"><small>S/</small> 1,000</div>
+        <div class="amount-igv">+ IGV 18% · S/ 180.00</div>
+        <div class="amount-total-line">Total proyecto · <strong>S/ 1,180.00</strong></div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer fade-in" style="animation-delay:.55s">
+      <div class="footer-brand">
+        <div class="footer-brand-mark"></div>
+        <span class="footer-brand-name">Arteria Studio</span>
+      </div>
+      <div class="footer-center">
+        AS-DH-2026-02 · Mayo 2026
+      </div>
+      <div class="footer-right">
+        Lima, Perú · +51 993 751 251<br>
+        arteria.studio
+      </div>
+      <div class="confidential-strip">
+        Documento confidencial · Uso exclusivo del cliente · No distribuir · Arteria Studio © 2026
+      </div>
+    </footer>
+
+  </div><!-- /page -->
+
+  <script>
+    // Intersection Observer para fade-in al hacer scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+      el.style.transition = 'opacity .7s ease, transform .7s ease';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>

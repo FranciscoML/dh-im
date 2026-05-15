@@ -141,6 +141,20 @@
     font-weight: 500;
   }
 
+  .cover-meta-value a {
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .cover-meta-value a:hover {
+    color: var(--gold);
+    text-decoration: underline;
+  }
+
+  .cover-meta-value a:active {
+    color: var(--gold-light);
+  }
+
   .cover-footer {
     position: relative;
     z-index: 2;
